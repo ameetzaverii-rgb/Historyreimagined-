@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="description" content="HistoryReimagined — a gamified, interactive way to learn modern world history (WW1 → Nazism → WW2), aligned to NCERT Grades 8–10.">
+<title>HistoryReimagined — From Trenches to Tyranny</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<!-- progress + chrome -->
+<div class="rp" id="rp"></div>
+
+<div class="topbar" id="topbar">
+  <div class="tb-logo" onclick="go('sHome')">HISTORY<span>REIMAGINED</span></div>
+  <div class="tb-r">
+    <div class="tb-links">
+      <button class="tb-btn" onclick="go('sAtlas')">Atlas</button>
+      <button class="tb-btn" onclick="go('sPeople')">People</button>
+      <button class="tb-btn" onclick="go('sWars')">Wars</button>
+      <button class="tb-btn" onclick="go('sMedia')">Media</button>
+      <button class="tb-btn" onclick="go('sActivities')">Activities</button>
+    </div>
+    <div class="tb-xp">★ <span id="xpn">0</span> XP</div>
+    <button class="tb-btn" onclick="go('sRank')"><span id="avatarMini">🎖️</span></button>
+  </div>
+</div>
+
+<div class="botnav" id="botnav">
+  <button class="bn" onclick="go('sHome')"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><div class="bn-lbl">Home</div></button>
+  <button class="bn" onclick="go('sTimeline')"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg><div class="bn-lbl">Timeline</div></button>
+  <button class="bn" onclick="go('sStory')"><svg viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1z"/></svg><div class="bn-lbl">Story</div></button>
+  <button class="bn" onclick="go('sPortfolio')"><svg viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg><div class="bn-lbl">Folder</div></button>
+  <button class="bn" onclick="go('sQuiz')"><svg viewBox="0 0 24 24"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2z"/></svg><div class="bn-lbl">Quiz</div></button>
+</div>
+
+<!-- glossary tooltip + toast -->
+<div class="tt" id="tt"><div class="ttterm" id="ttterm"></div><div class="ttdef" id="ttdef"></div></div>
+<div class="toast" id="toast"></div>
+
+<!-- ───────── S0 · LANDING ───────── -->
+<div class="screen active" id="s0">
+  <div class="s0bg"></div><div class="s0mk"></div>
+  <div class="s0c">
+    <div class="s0ey">NCERT Grades 8 · 9 · 10  ·  Modern World History</div>
+    <h1 class="s0h">From Trenches<br>to <em>Tyranny</em></h1>
+    <p class="s0sub">Don’t just read history. Live it, question it, and tell it your way — the story of two world wars and the rise of Nazism.</p>
+    <div class="s0f">
+      <div class="s0lbl">What should we call you, historian?</div>
+      <input class="s0inp" id="nameinp" placeholder="YOUR NAME" maxlength="22" autocomplete="off" spellcheck="false">
+      <div class="s0lbl" style="margin-top:6px">Pick your avatar</div>
+      <div class="s0avatars" id="s0avatars">
+        <div class="s0av on" onclick="pickAvatar(this)">🧑‍🎓</div>
+        <div class="s0av" onclick="pickAvatar(this)">👩‍🎓</div>
+        <div class="s0av" onclick="pickAvatar(this)">🧑‍🏫</div>
+        <div class="s0av" onclick="pickAvatar(this)">🕵️</div>
+        <div class="s0av" onclick="pickAvatar(this)">🦉</div>
+        <div class="s0av" onclick="pickAvatar(this)">🌍</div>
+      </div>
+      <button class="btn btn-p" style="margin-top:10px" onclick="begin()">Begin the Journey →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ───────── content screens (filled by JS) ───────── -->
+<div class="screen" id="sHome"><div class="pad wrap" id="homePane"></div></div>
+<div class="screen" id="sAtlas"><div class="pad wrap" id="atlasPane"></div></div>
+<div class="screen" id="sTimeline"><div class="pad wrap" id="timelinePane"></div></div>
+<div class="screen" id="sPeople"><div class="pad wrap" id="peoplePane"></div></div>
+<div class="screen" id="sWars"><div class="pad wrap" id="warsPane"></div></div>
+<div class="screen" id="sMedia"><div class="pad wrap" id="mediaPane"></div></div>
+<div class="screen" id="sActivities"><div class="pad wrap" id="activitiesPane"></div></div>
+<div class="screen" id="sPortfolio"><div class="pad wrap" id="portfolioPane"></div></div>
+<div class="screen" id="sRank"><div class="pad wrap" id="rankPane"></div></div>
+
+<!-- STORY (fixed scaffold; scenes injected) -->
+<div class="screen" id="sStory">
+  <div class="shero">
+    <img class="shimg" id="shimg" src="" alt="">
+    <div class="shgrad"></div>
+    <div class="shbloom" id="shbloom"></div>
+    <div class="shmeta"><div class="shch" id="shch"></div><div class="shtitle" id="shtitle"></div><div class="shsub" id="shsub"></div></div>
+    <div class="shcr" id="shcr"></div>
+  </div>
+  <div class="sds"><div class="sdlbl">Scene <span id="sdidx">1</span> of <span id="sdtot">7</span></div><div class="sdrow" id="sdrow"></div></div>
+  <div class="scbody" id="scBody"></div>
+  <div class="scextra" id="scExtra"></div>
+  <div class="scnav">
+    <button class="savebtn" onclick="saveSceneToFolder()">✎ Save to folder</button>
+    <button class="btn btn-g btn-sm" id="scnext" onclick="nextScene()">Next Scene →</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="sQuiz">
+  <div class="qzbg"></div>
+  <div class="qzframe" id="quizPane"></div>
+</div>
+
+<!-- person modal -->
+<div class="present" id="modal" style="z-index:940;background:rgba(28,20,16,.6);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg);max-width:520px;width:100%;max-height:90vh;overflow-y:auto;border:1px solid var(--bd);box-shadow:0 20px 60px rgba(0,0,0,.4)" id="modalBody"></div>
+</div>
+
+<!-- present mode (portfolio walkthrough) -->
+<div class="present" id="present">
+  <div class="ptop"><div class="tb-logo">My <span>Walkthrough</span></div><button class="btn btn-o btn-sm" onclick="Portfolio.closePresent()">✕ Exit</button></div>
+  <div class="pstage" id="presentStage"></div>
+  <div class="pfoot">
+    <button class="btn btn-o btn-sm" onclick="Portfolio.slide(-1)">← Prev</button>
+    <div class="pcount" id="presentCount"></div>
+    <button class="btn btn-p btn-sm" onclick="Portfolio.slide(1)">Next →</button>
+  </div>
+</div>
+
+<!-- scripts: config → collab → data → app → portfolio -->
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/collab.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/portfolio.js"></script>
+</body>
+</html>
