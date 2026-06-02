@@ -13,7 +13,10 @@
    • If your API lives on a DIFFERENT address than the page, put its full URL,
      e.g.  window.API_BASE = "https://your-app.vercel.app";
    ========================================================================== */
-window.API_BASE = null;
+// TEST PHASE: set to "" so the page uses the API on the same website (server.js / Vercel).
+// Note: opening index.html directly as a file:// has no API, so collaboration needs
+// the dev server (node server.js) or a deploy. Set back to null for pure offline use.
+window.API_BASE = "";
 
 // A shared room id so a whole class lands on the same collaboration wall.
 window.DEFAULT_ROOM = "class-8to10-history";
