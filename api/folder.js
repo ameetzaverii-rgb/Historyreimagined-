@@ -1,13 +1,14 @@
 // API endpoint: share / load a walkthrough folder by code.
 //   GET  /api/folder?code=CODE                -> { owner, cards } or null
 //   POST /api/folder { code, owner, cards }    -> publish (upsert)
-import { sql, cors } from './_neon.js';
+import { sql, cors, ensureSchema } from './_neon.js';
 
 export default async function handler(req, res) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
+    await ensureSchema();
     if (req.method === 'GET') {
       const code = String(req.query.code || '').toLowerCase();
       if (!code) return res.status(400).json({ error: 'code required' });

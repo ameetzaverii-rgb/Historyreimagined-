@@ -1,13 +1,14 @@
 // API endpoint: the class collaboration wall.
 //   GET  /api/wall?room=ROOM        -> newest 60 posts for that room
 //   POST /api/wall  { room, name, avatar, tag, text }  -> add a post
-import { sql, cors } from './_neon.js';
+import { sql, cors, ensureSchema } from './_neon.js';
 
 export default async function handler(req, res) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
+    await ensureSchema();
     if (req.method === 'GET') {
       const room = String(req.query.room || 'class');
       const rows = await sql`
