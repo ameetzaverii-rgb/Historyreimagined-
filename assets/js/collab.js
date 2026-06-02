@@ -1,56 +1,52 @@
 /* ============================================================================
    Collab — the collaboration data layer.
 
-   Presents ONE simple API to the rest of the app, with two interchangeable
-   back-ends:
+   ONE simple API for the rest of the app, with two interchangeable back-ends:
 
-     • LIVE   — Firebase Firestore. Real-time, cross-device, multi-user.
-                Activates automatically when firebase-config.js is filled in.
-     • LOCAL  — localStorage + the browser 'storage' event. Works instantly
-                with no setup; syncs across tabs on the same device and
-                supports manual "share code" import/export between friends.
+     • NEON   — talks to the Neon Postgres database through the /api functions.
+                Real, cross-device, multi-user. The class wall stays fresh by
+                polling every few seconds. Activates when API_BASE is set.
+     • LOCAL  — localStorage + the browser 'storage' event. Works instantly with
+                no setup; syncs across tabs on this device and supports manual
+                "share code" import/export between friends.
 
    Public API:
-     Collab.ready            -> Promise<'live'|'local'>
-     Collab.mode             -> 'live' | 'local'
-     Collab.onWall(room, cb) -> subscribe to wall posts (array, newest first)
+     Collab.ready            -> Promise<'neon'|'local'>
+     Collab.mode             -> 'neon' | 'local'
+     Collab.onWall(room, cb) -> subscribe to wall posts (array, newest first);
+                                returns an unsubscribe function
      Collab.postWall(room, post)
-     Collab.shareFolder(code, payload)   -> publish a folder under a room code
-     Collab.loadFolder(code)             -> Promise<payload|null>
+     Collab.shareFolder(code, payload)
+     Collab.loadFolder(code) -> Promise<payload|null>
    ========================================================================== */
 const Collab = (() => {
-  const cfg = window.FIREBASE_CONFIG || {};
-  const hasFirebase = !!(cfg.apiKey && cfg.projectId);
-  let mode = 'local';
-  let db = null;
-  let fs = null; // firestore module namespace
+  // API_BASE === null/undefined  -> local mode.
+  // API_BASE === "" or a URL     -> neon mode ("" means "same website").
+  const base = (typeof window.API_BASE === 'string') ? window.API_BASE : null;
+  let mode = (base === null) ? 'local' : 'neon';
+  const POLL_MS = 4000;
 
-  const api = { mode, ready: null, onWall, postWall, shareFolder, loadFolder, get mode() { return mode; } };
-
-  // ---- init -------------------------------------------------------------
-  api.ready = (async () => {
-    if (!hasFirebase) { mode = 'local'; return mode; }
-    try {
-      const appMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
-      fs = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-      const app = appMod.initializeApp(cfg);
-      db = fs.getFirestore(app);
-      mode = 'live';
-    } catch (e) {
-      console.warn('[Collab] Firebase unavailable, using local mode:', e);
-      mode = 'local';
-    }
-    return mode;
-  })();
+  const api = {
+    ready: Promise.resolve(mode),
+    onWall, postWall, shareFolder, loadFolder,
+    get mode() { return mode; },
+  };
 
   // ---- WALL -------------------------------------------------------------
   function onWall(room, cb) {
-    if (mode === 'live') {
-      const col = fs.collection(db, 'rooms', room, 'wall');
-      const q = fs.query(col, fs.orderBy('ts', 'desc'), fs.limit(60));
-      return fs.onSnapshot(q, snap => cb(snap.docs.map(d => d.data())));
+    if (mode === 'neon') {
+      let stopped = false;
+      const poll = async () => {
+        try {
+          const r = await fetch(`${base}/api/wall?room=${encodeURIComponent(room)}`);
+          if (r.ok) cb(await r.json());
+        } catch (e) { /* offline blip — keep showing last data */ }
+      };
+      poll();
+      const iv = setInterval(() => { if (!stopped) poll(); }, POLL_MS);
+      return () => { stopped = true; clearInterval(iv); };
     }
-    // local: read + subscribe to storage changes
+    // local
     const key = lkey(room);
     const emit = () => cb(readLocal(key));
     emit();
@@ -61,33 +57,35 @@ const Collab = (() => {
   }
 
   async function postWall(room, post) {
-    const doc = Object.assign({ ts: Date.now() }, post);
-    if (mode === 'live') {
-      await fs.addDoc(fs.collection(db, 'rooms', room, 'wall'), doc);
+    const doc = Object.assign({ room }, post);
+    if (mode === 'neon') {
+      await fetch(`${base}/api/wall`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(doc) });
       return;
     }
     const key = lkey(room);
     const arr = readLocal(key);
-    arr.unshift(doc);
+    arr.unshift(Object.assign({ ts: Date.now() }, post));
     localStorage.setItem(key, JSON.stringify(arr.slice(0, 60)));
     window.dispatchEvent(new Event('hr-wall-' + room));
   }
 
   // ---- FOLDER SHARING ---------------------------------------------------
   async function shareFolder(code, payload) {
-    const data = Object.assign({ ts: Date.now() }, payload);
-    if (mode === 'live') {
-      await fs.setDoc(fs.doc(db, 'folders', code), data);
-      return true;
+    if (mode === 'neon') {
+      const r = await fetch(`${base}/api/folder`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ code }, payload)) });
+      return r.ok;
     }
-    localStorage.setItem('hr_folder_' + code, JSON.stringify(data));
+    localStorage.setItem('hr_folder_' + code, JSON.stringify(Object.assign({ ts: Date.now() }, payload)));
     return true;
   }
 
   async function loadFolder(code) {
-    if (mode === 'live') {
-      const snap = await fs.getDoc(fs.doc(db, 'folders', code));
-      return snap.exists() ? snap.data() : null;
+    if (mode === 'neon') {
+      try {
+        const r = await fetch(`${base}/api/folder?code=${encodeURIComponent(code)}`);
+        if (!r.ok) return null;
+        return await r.json();
+      } catch { return null; }
     }
     const raw = localStorage.getItem('hr_folder_' + code);
     return raw ? JSON.parse(raw) : null;

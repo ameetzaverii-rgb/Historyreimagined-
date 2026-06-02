@@ -5,7 +5,7 @@
    • Folder    : add / edit / reorder / delete learning cards.
    • Present   : a full-screen walkthrough the student can teach from.
    • Collaborate: a real-time class wall + folder sharing via room codes,
-                  powered by the Collab layer (Firebase live, or local).
+                  powered by the Collab layer (Neon live, or local).
    ========================================================================== */
 const Portfolio = (() => {
   const KEY = 'hr_folder_v1';
@@ -129,13 +129,13 @@ const Portfolio = (() => {
   /* ---- COLLABORATE: wall + sharing ---- */
   function renderCollab() {
     const el = document.getElementById('pfCollab'); if (!el) return;
-    const live = Collab.mode === 'live';
+    const live = Collab.mode === 'neon';
     el.innerHTML = `
       <div class="scfact" style="border-left-color:${live ? 'var(--green)' : 'var(--gold)'};margin-bottom:16px">
-        <div class="scfl" style="color:${live ? 'var(--green)' : 'var(--gold)'}">${live ? '🟢 Live · multi-user' : '🟡 Local mode'}</div>
+        <div class="scfl" style="color:${live ? 'var(--green)' : 'var(--gold)'}">${live ? '🟢 Live · multi-user (Neon)' : '🟡 Local mode'}</div>
         <p>${live
-          ? 'Connected to your class in real time — posts and shared folders sync across everyone’s devices instantly.'
-          : 'Working on this device. To turn on real-time sharing across the whole class, add a free Firebase config (see <code>assets/js/firebase-config.js</code>). Until then you can still share a folder with a friend using a <b>share code</b> below.'}</p>
+          ? 'Connected to your class through the Neon database — posts and shared folders sync across everyone’s devices (the wall refreshes every few seconds).'
+          : 'Working on this device. To turn on real-time sharing across the whole class, connect the Neon database (see <code>README.md</code> → "Set up the database"). Until then you can still share a folder with a friend using a <b>share code</b> below.'}</p>
       </div>
 
       <div class="sec-head"><div class="eyebrow">Class wall · room “${escHTML(ROOM)}”</div><h2 class="h2">Share thoughts</h2></div>

@@ -1,0 +1,10 @@
+{
+  "name": "historyreimagined",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A gamified, NCERT-aligned interactive history learning experience (WW1 -> Nazism -> WW2) with a Neon-backed collaboration API.",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  }
+}
