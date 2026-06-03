@@ -73,6 +73,11 @@ function renderScreen(id, opts) {
     case 'sQuiz': startQuiz(); break;
     case 'sRank': renderRank(); break;
     case 'sPortfolio': Portfolio.render(opts); break;
+    case 'sLocal': Interactive.renderLocal(); break;
+    case 'sDecide': Interactive.renderDecide(); break;
+    case 'sDetective': Interactive.renderDetective(); break;
+    case 'sSort': Interactive.renderSort(); break;
+    case 'sDebate': Interactive.renderDebate(); break;
   }
 }
 
@@ -119,6 +124,11 @@ const HUBS = [
   { id: 'sActivities', ic: 'target', ac: 'var(--turq-d)', t: 'Activity Ladder', d: "Bloom's tasks → your folder" },
   { id: 'sPortfolio', ic: 'folder', ac: 'var(--orange)', t: 'My Walkthrough', d: 'Build & share your folder' },
   { id: 'sQuiz', ic: 'bolt', ac: 'var(--azure)', t: 'Quiz', d: 'Test yourself, earn XP' },
+  { id: 'sLocal', ic: 'map', ac: 'var(--purple)', t: 'History Near You', d: 'Your region’s WW story' },
+  { id: 'sDecide', ic: 'flag', ac: 'var(--orange)', t: 'You Decide', d: 'Make history’s big choices' },
+  { id: 'sDetective', ic: 'target', ac: 'var(--azure)', t: 'Source Detective', d: 'Decode real evidence' },
+  { id: 'sSort', ic: 'check', ac: 'var(--turq-d)', t: 'Sort It Out', d: 'Order, match & score' },
+  { id: 'sDebate', ic: 'share', ac: 'var(--purple)', t: 'Debate Arena', d: 'Argue it live with class' },
   { id: 'sRank', ic: 'medal', ac: 'var(--turq-d)', t: 'Progress', d: 'XP, ranks & badges' },
 ];
 // Student-facing journey map (derived from stored progress, so it persists).
@@ -367,7 +377,17 @@ function renderScene(i) {
   if (!State.scenesRead.includes(scIdx)) { State.scenesRead.push(scIdx); save(); gainXP(15, '+15 XP · Scene read'); }
   if (State.scenesRead.length >= STORY.length) unlock('storyteller');
   bindGlossary();
+  applyReveal();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+/* scrollytelling: fade + rise blocks in as they enter the viewport */
+function applyReveal() {
+  const els = [$('#scBody'), ...$$('#scExtra > *')].filter(Boolean);
+  if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in')); return; }
+  const io = new IntersectionObserver((ents) => {
+    ents.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { threshold: .12, rootMargin: '0px 0px -8% 0px' });
+  els.forEach(e => { e.classList.add('reveal'); io.observe(e); });
 }
 function renderExtra(ex) {
   if (!ex) return '';
