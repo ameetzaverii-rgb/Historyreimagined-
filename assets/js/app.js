@@ -125,7 +125,7 @@ const HUBS = [
   { id: 'sPeople', ic: 'people', ac: 'var(--orange)', t: 'Personalities', d: 'The people who shaped the age' },
   { id: 'sWars', ic: 'map', ac: 'var(--azure)', t: 'Wars & Map', d: 'WW1, WW2 and the battle map' },
   { id: 'sMedia', ic: 'media', ac: 'var(--purple)', t: 'Media Library', d: 'Open resources & video' },
-  { id: 'sActivities', ic: 'target', ac: 'var(--turq-d)', t: 'Activity Ladder', d: "Bloom's tasks → your folder" },
+  { id: 'sActivities', ic: 'target', ac: 'var(--turq-d)', t: 'Try It Yourself', d: 'Quick tasks → your folder' },
   { id: 'sPortfolio', ic: 'folder', ac: 'var(--orange)', t: 'My Walkthrough', d: 'Build & share your folder' },
   { id: 'sQuiz', ic: 'bolt', ac: 'var(--azure)', t: 'Quiz', d: 'Test yourself, earn XP' },
   { id: 'sLocal', ic: 'map', ac: 'var(--purple)', t: 'History Near You', d: 'Your region’s WW story' },
@@ -192,6 +192,11 @@ function renderHome() {
       <div class="cont-ic">${svgIcon(next.ic)}</div>
       <div class="cont-b"><div class="cont-lbl">Up next for you</div><h3>${esc(next.t)}</h3><p>${esc(next.d)}</p></div>
       <div class="cont-go">→</div>
+    </div>
+
+    <div class="sec-head" style="margin-top:24px"><div class="eyebrow">${svgIcon('people', 'width="14" height="14"')} Meet the cast</div></div>
+    <div class="faces">
+      ${['hitler', 'gandhi', 'annefrank', 'lenin', 'churchill', 'bose'].map(id => { const p = PEOPLE.find(x => x.id === id); return p ? `<div class="face" onclick="openPerson('${id}')">${img(p.img, '', p.name)}<span>${esc(p.name.split(' ').slice(-1)[0])}</span></div>` : ''; }).join('')}
     </div>
 
     <div class="sec-head" style="margin-top:28px"><div class="eyebrow">${svgIcon('flag', 'width="14" height="14"')} Your journey</div><h2 class="h2">How far you’ve come</h2></div>

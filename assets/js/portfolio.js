@@ -40,7 +40,7 @@ const Portfolio = (() => {
     if (opts.tab) tab = opts.tab;
     const pane = document.getElementById('portfolioPane');
     pane.innerHTML = `
-      <div class="sec-head"><div class="eyebrow">Gagné #9 · Make it yours</div><h2 class="h2">My Walkthrough</h2>
+      <div class="sec-head"><div class="eyebrow">Make it yours</div><h2 class="h2">My Walkthrough</h2>
         <p class="lead">Collect what you learned into an interactive folder, present it like a museum guide, and share it with friends.</p></div>
       <div class="pf-tabs">
         <button class="pf-tab ${tab === 'folder' ? 'on' : ''}" onclick="Portfolio.go('folder')">🗂️ My Folder</button>
@@ -61,7 +61,7 @@ const Portfolio = (() => {
       ${Object.keys(KIND).map(k => `<button class="addbtn" onclick="Portfolio.add('${k}','','')">+ ${KIND[k].lbl}</button>`).join('')}
     </div></div>`;
     if (!cards.length) {
-      el.innerHTML = adder + `<div class="pf-empty"><div class="pe">🗂️</div><p>Your folder is empty.</p><p class="lead">Add cards above, or tap “Add to my folder” anywhere in the app — in Story Mode, Personalities or the Activity Ladder.</p></div>`;
+      el.innerHTML = adder + `<div class="pf-empty"><div class="pe">🗂️</div><p>Your folder is empty.</p><p class="lead">Add cards above, or tap “Add to my folder” anywhere in the app — while reading, exploring People, or in “Try It Yourself”.</p></div>`;
       return;
     }
     el.innerHTML = adder + `<div class="foldergrid">${cards.map((c, i) => cardHTML(c, i)).join('')}</div>

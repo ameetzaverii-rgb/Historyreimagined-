@@ -379,3 +379,51 @@ const CHAPTER_MEDIA = {
   5: { video: 'Q78COTwT7nE', vlabel: 'Watch: World War II explained (CrashCourse #38)' },
   6: { gallery: [{ src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mahatma-Gandhi%2C_studio%2C_1931.jpg/480px-Mahatma-Gandhi%2C_studio%2C_1931.jpg', cap: 'Mahatma Gandhi — India’s freedom came just two years after the war.' }] },
 };
+
+/* ============================================================================
+   DEEP CHAPTER — the fully-built showcase chapter (NCERT Class 9, Ch.3).
+   Rendered by the Reader as one rich, continuous chapter.
+   ========================================================================== */
+const DEEP_META = {
+  kicker: 'Chapter · NCERT Class 9',
+  title: 'The Rise of Hitler',
+  subtitle: 'How a modern democracy destroyed itself — Germany, 1919–1945',
+  cover: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/WW2_Photographer_in_Battle_of_the_Bulge.jpg/1280px-WW2_Photographer_in_Battle_of_the_Bulge.jpg',
+};
+const DEEP_CHAPTER = [
+  { t: 'para', dropcap: true, html: `Picture a country that is modern, educated and proud — home to great scientists, poets and musicians. Now picture that same country, in just fourteen years, turning itself into a <span class="hl" data-term="Dictatorship" data-def="A system where one leader or party holds total power and takes away the people’s freedoms and rights.">dictatorship</span> that would launch the deadliest war in history. That country was Germany. This is the story of how it happened — not by accident, but step by step.` },
+
+  { t: 'minihead', text: 'A democracy born in defeat' },
+  { t: 'para', html: `After losing the First World War, Germany became a democracy known as the <span class="hl" data-term="Weimar Republic" data-def="Germany’s democratic government from 1919 to 1933. It was blamed for the defeat and for signing the hated Versailles treaty.">Weimar Republic</span>. But it was born wounded. Many Germans wrongly believed their army had been “stabbed in the back” by politicians at home. And the <span class="hl" data-term="Treaty of Versailles" data-def="The 1919 peace treaty that forced Germany to accept blame for the war, lose land, and pay crushing reparations.">Treaty of Versailles</span> forced Germany to accept full blame and pay reparations it could never afford.` },
+  { t: 'img', src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/William_Orpen_%E2%80%93_The_Signing_of_Peace_in_the_Hall_of_Mirrors%2C_Versailles_1919%2C_Ausschnitt.jpg/1280px-William_Orpen_%E2%80%93_The_Signing_of_Peace_in_the_Hall_of_Mirrors%2C_Versailles_1919%2C_Ausschnitt.jpg', cap: 'Germany signs the Treaty of Versailles, 1919. Many Germans called it the “Diktat” — a dictated peace.' },
+
+  { t: 'minihead', text: 'When money became worthless' },
+  { t: 'para', html: `In 1923, prices spun wildly out of control — an economic disaster called <span class="hl" data-term="Hyperinflation" data-def="When money loses value so fast that prices double in days. Savings become worthless almost overnight.">hyperinflation</span>. People carried their wages in wheelbarrows, and children played with bricks of banknotes because they were cheaper than toys.` },
+  { t: 'img', src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/German_Hyperinflation.svg/960px-German_Hyperinflation.svg.png', cap: 'The German mark collapses, 1923. When the line rockets off the chart, ordinary life breaks down.' },
+  { t: 'did', text: 'The Versailles reparations were so vast that Germany only finished paying them off in 2010 — ninety-one years after the war ended.' },
+
+  { t: 'minihead', text: '1929 — the world economy collapses' },
+  { t: 'para', html: `Just as Germany was recovering, the <strong>Great Depression</strong> struck. Global trade froze. By 1932, <strong>one in three German workers had no job</strong>. Frightened, hungry and humiliated, many people began to listen to anyone who promised to make Germany strong and proud again.` },
+  { t: 'decision', id: 'weimar', title: 'You are there — Germany, 1932', d: 'Jobless, afraid, and surrounded by angry promises. What would you do?' },
+
+  { t: 'minihead', text: 'How he took power' },
+  { t: 'para', html: `Here is the part that surprises people most: <span class="hl" data-term="Adolf Hitler" data-def="Dictator of Germany from 1933 to 1945. He turned a democracy into a genocidal one-party state and started WW2.">Adolf Hitler</span> did not seize power in a violent coup. In January 1933 he was <em>appointed</em> Chancellor — legally. Then, step by careful step, he dismantled democracy from the inside: banning rival parties, silencing newspapers, and giving himself the power to make laws without parliament.` },
+  { t: 'quote', text: 'A democracy can be voted away — the moment its people stop defending it.', who: 'The warning at the heart of this chapter' },
+
+  { t: 'minihead', text: 'The machinery of belief' },
+  { t: 'para', html: `How do you make millions go along with this? Through <span class="hl" data-term="Propaganda" data-def="Information — often misleading — designed to control how people think and feel. The Nazis were masters of it.">propaganda</span>. The Nazis flooded every cinema, radio and classroom with a single message. Children were enrolled in the Hitler Youth; teachers who disagreed were dismissed. Spectacle replaced debate.` },
+  { t: 'video', id: 'Q78COTwT7nE', label: 'Watch: how this led the world into World War II (CrashCourse)' },
+  { t: 'source', id: 'portrait', title: 'Read it like a detective', d: 'Even a single portrait was designed to persuade. Tap the clues and decode it.' },
+
+  { t: 'minihead', text: 'A state built on hatred' },
+  { t: 'para', html: `The Nazi “racial state” stripped German Jews of their citizenship and rights, step by step, until it led to the <span class="hl" data-term="The Holocaust" data-def="The systematic, state-organised murder of six million Jewish people, along with Roma, disabled people and others the Nazis targeted.">Holocaust</span> — the murder of six million Jewish men, women and children, and millions of others.` },
+  { t: 'fact', label: 'From your NCERT textbook (Class 9, Ch.3)', text: 'The Nazis almost never used the words “kill” or “murder” in public. Mass killing was hidden behind cold phrases like “special treatment”. Language itself became a weapon — which is exactly why historians teach you to read every source critically.' },
+  { t: 'img', src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Bundesarchiv_Bild_183-1982-1130-502%2C_N%C3%BCrnberg%2C_Reichsparteitag%2C_Lichtdom.jpg/800px-Bundesarchiv_Bild_183-1982-1130-502%2C_N%C3%BCrnberg%2C_Reichsparteitag%2C_Lichtdom.jpg', cap: 'A Nazi rally at Nuremberg. Propaganda turned politics into overwhelming spectacle.' },
+
+  { t: 'minihead', text: 'Behind the statistics, people' },
+  { t: 'para', html: `It is easy to lose people inside big numbers. So meet two of them: the man who built this machine, and a girl your own age who was crushed by it.` },
+  { t: 'people', ids: ['hitler', 'annefrank'] },
+
+  { t: 'minihead', text: 'Why this still matters to you' },
+  { t: 'para', html: `This is not just German history, and it is not safely “the past”. It is the clearest warning we have that a free society can be lost from within — through fear, lies and silence. The world you live in answered back: the <strong>United Nations</strong> and the idea of universal <strong>human rights</strong> were born from these years. And a war-weakened Britain soon let go of its empire — <strong>India was free in 1947</strong>. Your rights, your vote, your freedom — they were shaped here. <em>Now go and tell this story your way.</em>` },
+];

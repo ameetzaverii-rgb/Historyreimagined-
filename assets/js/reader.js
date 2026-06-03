@@ -1,77 +1,74 @@
 /* ============================================================================
    Reader — "The Living Textbook".
-   The whole module presented as ONE coherent, scrolling book. Chapters flow
-   into each other; Sage grounds to the chapter in view; interactions are
-   woven in as inline "breaks". Uses globals: STORY, renderExtra, esc, img,
-   State, gainXP, save, Guide, svgIcon.
+   Renders ONE deeply-built chapter (DEEP_META + DEEP_CHAPTER) as a single,
+   continuous, beautiful read: flowing sections, real images, contextual video,
+   inline interactions, key people, and Sage grounded to the chapter.
+   Globals: DEEP_META, DEEP_CHAPTER, PEOPLE, img, esc, svgIcon, sideLabel,
+   bindGlossary, State, gainXP, save, unlock, Guide.
    ========================================================================== */
 const Reader = (() => {
-  let built = false, io = null, ticking = false;
-  // where to drop an inline interactive moment (after chapter index -> mode)
-  const BREAKS = {
-    2: { t: 'Step into the room', d: 'You’re the peacemaker at Versailles, 1919. What would you decide?', btn: 'Play “You Decide”', go: 'sDecide' },
-    4: { t: 'Investigate the evidence', d: 'Real historians read sources. Decode a real photograph or poster.', btn: 'Open Source Detective', go: 'sDetective' },
-    5: { t: 'Take a side', d: 'Was the world right to act as it did? Argue it with your class.', btn: 'Enter the Debate', go: 'sDebate' },
-  };
+  let built = false, ticking = false;
 
   function render() {
-    if (built) { wireScroll(); return; }
-    const pane = document.getElementById('readerPane');
-    pane.innerHTML = cover() + STORY.map((s, i) => chapter(s, i)).join('') + endCard();
-    built = true;
-    observe();
+    if (!built) {
+      const pane = document.getElementById('readerPane');
+      pane.innerHTML = cover()
+        + `<article class="bk-ch"><div class="bk-body bk-deepbody">${DEEP_CHAPTER.map(section).join('')}</div></article>`
+        + soon() + endCard();
+      built = true;
+      window.readerContext = {
+        title: DEEP_META.title,
+        text: DEEP_CHAPTER.filter(s => s.t === 'para').map(s => s.html.replace(/<[^>]+>/g, ' ')).join(' ').replace(/\s+/g, ' ').slice(0, 4500),
+      };
+      if (typeof bindGlossary === 'function') bindGlossary();
+      observe();
+      if (!State.scenesRead.includes(0)) { State.scenesRead.push(0); save(); gainXP(20, '+20 XP · Chapter opened'); }
+    }
     wireScroll();
   }
 
   function cover() {
     return `<section class="bk-cover">
       <div class="bk-cover-ovl"></div>
-      ${img(MODULE.hero, 'bk-cover-img', 'Cover')}
+      ${img(DEEP_META.cover, 'bk-cover-img', 'Cover')}
       <div class="bk-cover-c">
-        <div class="bk-kicker">${esc(MODULE.anchor)}</div>
-        <h1 class="bk-title">From Trenches<br>to <em>Tyranny</em></h1>
-        <p class="bk-sub">${esc(MODULE.subtitle)}</p>
+        <div class="bk-kicker">${esc(DEEP_META.kicker)}</div>
+        <h1 class="bk-title">${esc(DEEP_META.title)}</h1>
+        <p class="bk-sub">${esc(DEEP_META.subtitle)}</p>
         <div class="bk-scroll">Scroll to begin ↓</div>
       </div>
     </section>`;
   }
 
-  function chapter(s, i) {
-    const brk = BREAKS[i];
-    return `<article class="bk-ch" data-i="${i}" data-title="${esc(s.ti)}">
-      <div class="bk-hero">
-        ${img(s.img, 'bk-hero-img', s.ti)}
-        <div class="bk-hero-grad"></div>
-        <div class="bk-hero-meta">
-          <div class="bk-chnum">${esc(s.ch)}</div>
-          <h2 class="bk-chtitle">${esc(s.ti)}</h2>
-          <p class="bk-chsub">${esc(s.su)}</p>
-        </div>
-      </div>
-      <div class="bk-body">
-        <p class="bk-para reveal ${s.lead ? 'dropcap' : ''}">${s.body}</p>
-        ${mediaBlock(i)}
-        <div class="bk-extra reveal">${renderExtra(s.extra)}</div>
-        ${brk ? `<div class="bk-break reveal"><div class="bk-break-t">${svgIcon('flag', 'width="15" height="15"')} ${esc(brk.t)}</div><p>${esc(brk.d)}</p><button class="btn btn-g btn-sm" onclick="go('${brk.go}')">${esc(brk.btn)} →</button></div>` : ''}
-      </div>
-    </article>`;
+  function section(s) {
+    switch (s.t) {
+      case 'minihead': return `<h3 class="bk-minihead reveal">${esc(s.text)}</h3>`;
+      case 'para': return `<p class="bk-para reveal ${s.dropcap ? 'dropcap' : ''}">${s.html}</p>`;
+      case 'img': return `<figure class="bk-figure reveal">${img(s.src, 'bk-fig-img', s.cap)}<figcaption>${esc(s.cap)}</figcaption></figure>`;
+      case 'video': return `<figure class="bk-video reveal"><div class="bk-video-frame"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${s.id}" title="${esc(s.label || 'Video')}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div><figcaption>${esc(s.label || 'Watch')}</figcaption></figure>`;
+      case 'quote': return `<div class="scpull reveal">${esc(s.text)}<cite>— ${esc(s.who)}</cite></div>`;
+      case 'fact': return `<div class="scfact reveal"><div class="scfl">${esc(s.label)}</div><p>${esc(s.text)}</p></div>`;
+      case 'did': return `<div class="scdid reveal"><div class="dl">Did you know?</div><p>${esc(s.text)}</p></div>`;
+      case 'decision': return `<div class="bk-break reveal"><div class="bk-break-t">🧭 ${esc(s.title)}</div><p>${esc(s.d)}</p><button class="btn btn-g btn-sm" onclick="go('sDecide');setTimeout(()=>Interactive.openDecision('${s.id}'),60)">Step in →</button></div>`;
+      case 'source': return `<div class="bk-break reveal"><div class="bk-break-t">🔍 ${esc(s.title)}</div><p>${esc(s.d)}</p><button class="btn btn-g btn-sm" onclick="go('sDetective');setTimeout(()=>Interactive.openSource('${s.id}'),60)">Investigate →</button></div>`;
+      case 'people': return `<div class="bk-people reveal">${s.ids.map(id => { const p = PEOPLE.find(x => x.id === id); return p ? `<div class="bk-person" onclick="openPerson('${id}')">${img(p.img, 'bk-person-img', p.name)}<div><h4>${esc(p.name)}</h4><p>${esc(p.role)}</p><span class="pside ${p.side}">${sideLabel(p.side)}</span></div></div>` : ''; }).join('')}</div>`;
+      default: return '';
+    }
   }
 
-  // real images + contextual YouTube woven into the chapter
-  function mediaBlock(i) {
-    const m = (typeof CHAPTER_MEDIA !== 'undefined' && CHAPTER_MEDIA[i]) || null;
-    if (!m) return '';
-    let out = '';
-    if (m.gallery) out += m.gallery.map(g => `<figure class="bk-figure reveal">${img(g.src, 'bk-fig-img', g.cap)}<figcaption>${esc(g.cap)}</figcaption></figure>`).join('');
-    if (m.video) out += `<figure class="bk-video reveal"><div class="bk-video-frame"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${m.video}" title="${esc(m.vlabel || 'Video')}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div><figcaption>${esc(m.vlabel || 'Watch')}</figcaption></figure>`;
-    return out;
+  function soon() {
+    return `<section class="bk-soon">
+      <div class="bk-soon-ic">📚</div>
+      <h3>More chapters coming soon</h3>
+      <p>This is the full, deep version of one chapter. The Spark of 1914, the Trenches, Versailles and the Dawn of 1945 are on the way.</p>
+      <button class="btn btn-o btn-sm" onclick="go('sTimeline')">Meanwhile, explore the timeline →</button>
+    </section>`;
   }
-
   function endCard() {
     return `<section class="bk-end">
       <div class="bk-end-badge">🌟</div>
-      <h2 class="h2" style="color:#fff">You finished the book</h2>
-      <p>You’ve travelled from a single shot in Sarajevo to a free India. Now make it yours.</p>
+      <h2 class="h2" style="color:#fff">You read the whole chapter</h2>
+      <p>From a wounded democracy to a warning for the world. Now make it yours.</p>
       <div class="bk-end-actions">
         <button class="btn btn-g" onclick="go('sQuiz')">Test yourself →</button>
         <button class="btn btn-o" onclick="go('sPortfolio')">Build your walkthrough</button>
@@ -79,31 +76,22 @@ const Reader = (() => {
     </section>`;
   }
 
-  /* reveal + chapter tracking */
   function observe() {
-    if (!('IntersectionObserver' in window)) { document.querySelectorAll('.reveal').forEach(e => e.classList.add('in')); return; }
+    if (!('IntersectionObserver' in window)) { document.querySelectorAll('#readerPane .reveal').forEach(e => e.classList.add('in')); return; }
     const rev = new IntersectionObserver((ents) => {
       ents.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); rev.unobserve(en.target); } });
-    }, { threshold: .12, rootMargin: '0px 0px -8% 0px' });
+    }, { threshold: .1, rootMargin: '0px 0px -7% 0px' });
     document.querySelectorAll('#readerPane .reveal').forEach(e => rev.observe(e));
 
-    io = new IntersectionObserver((ents) => {
-      ents.forEach(en => { if (en.isIntersecting) enterChapter(+en.target.dataset.i, en.target); });
-    }, { threshold: .4 });
-    document.querySelectorAll('#readerPane .bk-ch').forEach(a => io.observe(a));
-  }
-
-  function enterChapter(i, el) {
-    const s = STORY[i];
-    window.readerContext = { title: s.ti, text: (s.su || '') + ' ' + (s.body || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() };
-    if (!State.scenesRead.includes(i)) {
-      State.scenesRead.push(i); save(); gainXP(15, '+15 XP · ' + s.ch);
-      if (State.scenesRead.length >= STORY.length) { unlock('storyteller'); window.Guide && Guide.react('finish'); }
-      else if (window.Guide && Math.random() < .5) Guide.react('scene');
+    const endEl = document.querySelector('#readerPane .bk-end');
+    if (endEl) {
+      const fin = new IntersectionObserver((ents) => {
+        ents.forEach(en => { if (en.isIntersecting) { fin.disconnect(); unlock('storyteller'); window.Guide && Guide.react('finish'); } });
+      }, { threshold: .5 });
+      fin.observe(endEl);
     }
   }
 
-  /* reading-progress bar driven by scroll position in the book */
   function wireScroll() {
     window.removeEventListener('scroll', onScroll);
     window.addEventListener('scroll', onScroll, { passive: true });

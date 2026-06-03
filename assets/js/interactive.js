@@ -34,7 +34,7 @@ const Interactive = (() => {
       'Step into history’s biggest moments. Make a choice, then see what really happened. There are no easy answers.') + `
       <div class="declist">${DECISIONS.map(d => `<div class="deccard" onclick="Interactive.openDecision('${d.id}')">
         <span class="decicon">${d.icon}</span>
-        <div><div class="decbloom">Bloom · ${d.bloom}</div><h3>${esc(d.title)}</h3><p>${esc(d.setup)}</p></div>
+        <div><h3>${esc(d.title)}</h3><p>${esc(d.setup)}</p></div>
         <span class="decgo">${svgIcon('flag', 'width="16" height="16"')}</span></div>`).join('')}</div>`;
   }
   function openDecision(id) {
@@ -42,7 +42,7 @@ const Interactive = (() => {
     gainXP(6, '+6 XP · Decision opened');
     $('decidePane').innerHTML = `<button class="btn btn-o btn-sm" style="margin-bottom:16px" onclick="Interactive.renderDecide()">← All scenarios</button>
       <div class="decstage"><span class="decicon" style="font-size:40px">${d.icon}</span>
-      <div class="decbloom">Bloom · ${d.bloom}</div><h2 class="h2">${esc(d.title)}</h2>
+      <h2 class="h2">${esc(d.title)}</h2>
       <p class="declead">${d.setup}</p>
       <div class="decbloom" style="margin:18px 0 8px">What do you do?</div>
       <div class="decchoices">${d.choices.map((c, i) => `<button class="decchoice" onclick="Interactive.choose('${id}',${i})">${esc(c.label)}</button>`).join('')}</div>
@@ -115,7 +115,7 @@ const Interactive = (() => {
   function drawSort() {
     const s = SORTS.find(x => x.id === sortState.id);
     const back = `<button class="btn btn-o btn-sm" style="margin-bottom:16px" onclick="Interactive.renderSort()">← All challenges</button>`;
-    const headHtml = `<div class="srckind">Bloom · Analyse</div><h2 class="h2" style="margin-bottom:4px">${s.icon} ${esc(s.title)}</h2><p class="declead" style="margin-bottom:16px">${esc(s.prompt)}</p>`;
+    const headHtml = `<div class="srckind">Quick challenge</div><h2 class="h2" style="margin-bottom:4px">${s.icon} ${esc(s.title)}</h2><p class="declead" style="margin-bottom:16px">${esc(s.prompt)}</p>`;
     let body;
     if (s.type === 'order') {
       body = `<div class="orderlist">${sortState.order.map((it, pos) => `<div class="orderrow">
