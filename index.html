@@ -33,7 +33,7 @@
 <div class="botnav" id="botnav">
   <button class="bn" onclick="go('sHome')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><div class="bn-lbl">Home</div></button>
   <button class="bn" onclick="go('sTimeline')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg><div class="bn-lbl">Timeline</div></button>
-  <button class="bn" onclick="go('sStory')"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.4-5-1.4-7 0v12c2-1.4 5-1.4 7 0 2-1.4 5-1.4 7 0V6c-2-1.4-5-1.4-7 0z"/><path d="M12 6v12"/></svg><div class="bn-lbl">Story</div></button>
+  <button class="bn" onclick="go('sRead')"><svg viewBox="0 0 24 24"><path d="M12 6c-2-1.4-5-1.4-7 0v12c2-1.4 5-1.4 7 0 2-1.4 5-1.4 7 0V6c-2-1.4-5-1.4-7 0z"/><path d="M12 6v12"/></svg><div class="bn-lbl">Read</div></button>
   <button class="bn" onclick="go('sPortfolio')"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><div class="bn-lbl">Folder</div></button>
   <button class="bn" onclick="go('sQuiz')"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg><div class="bn-lbl">Quiz</div></button>
 </div>
@@ -74,6 +74,7 @@
 
 <!-- ───────── content screens (filled by JS) ───────── -->
 <div class="screen" id="sHome"><div class="pad wrap" id="homePane"></div></div>
+<div class="screen" id="sRead"><div class="reader" id="readerPane"></div></div>
 <div class="screen" id="sAtlas"><div class="pad wrap" id="atlasPane"></div></div>
 <div class="screen" id="sTimeline"><div class="pad wrap" id="timelinePane"></div></div>
 <div class="screen" id="sPeople"><div class="pad wrap" id="peoplePane"></div></div>
@@ -128,13 +129,42 @@
   </div>
 </div>
 
-<!-- scripts: config → collab → data → app → portfolio -->
+<!-- Sage — the living guide character -->
+<div class="guide-wrap" id="guideWrap" style="display:none">
+  <div class="guide-bubble" id="guideBubble"></div>
+  <button class="guide-orb" id="guideOrb" onclick="Guide.toggle()" aria-label="Open Sage, your study buddy">
+    <svg class="owl" viewBox="0 0 64 64"><path d="M17 13l8 8-11 2z" fill="#06246b"/><path d="M47 13l-8 8 11 2z" fill="#06246b"/><ellipse cx="32" cy="37" rx="20" ry="22" fill="#0a47b8"/><ellipse cx="32" cy="41" rx="12.5" ry="15" fill="#0d57d8"/><circle cx="24" cy="31" r="9" fill="#fff"/><circle cx="40" cy="31" r="9" fill="#fff"/><circle class="pupil" cx="24" cy="32" r="4.2" fill="#16213a"/><circle class="pupil" cx="40" cy="32" r="4.2" fill="#16213a"/><circle cx="22.4" cy="30.4" r="1.5" fill="#fff"/><circle cx="38.4" cy="30.4" r="1.5" fill="#fff"/><path d="M32 35l4 5h-8z" fill="#FF934F"/></svg>
+  </button>
+</div>
+<div class="guide-chat" id="guideChat">
+  <div class="gc-top">
+    <div class="gc-av"><svg class="owl" viewBox="0 0 64 64"><ellipse cx="32" cy="37" rx="20" ry="22" fill="#0a47b8"/><circle cx="24" cy="31" r="9" fill="#fff"/><circle cx="40" cy="31" r="9" fill="#fff"/><circle class="pupil" cx="24" cy="32" r="4.2" fill="#16213a"/><circle class="pupil" cx="40" cy="32" r="4.2" fill="#16213a"/><path d="M32 35l4 5h-8z" fill="#FF934F"/></svg></div>
+    <div><div class="gc-name">Sage</div><div class="gc-sub">Your study buddy</div></div>
+    <button class="gc-x" onclick="Guide.close()">✕</button>
+  </div>
+  <div class="gc-chips">
+    <button class="gc-chip" onclick="Guide.chip('summary')">✨ Summarise this</button>
+    <button class="gc-chip" onclick="Guide.chip('quiz')">🎯 Quiz me</button>
+    <button class="gc-chip" onclick="Guide.chip('simple')">🧒 Explain simply</button>
+    <button class="gc-chip" onclick="Guide.chip('why')">🌍 Why it matters</button>
+  </div>
+  <div class="gc-msgs" id="gcMsgs"></div>
+  <div class="gc-in">
+    <textarea id="gcInput" rows="1" placeholder="Ask Sage anything…" onkeydown="Guide.onKey(event)"></textarea>
+    <button class="gc-send" onclick="Guide.send()" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+  </div>
+</div>
+
+<!-- scripts: config → collab → data → ai → app → portfolio → guide -->
 <script src="assets/js/api-config.js"></script>
 <script src="assets/js/collab.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/data-interactive.js"></script>
+<script src="assets/js/ai.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/portfolio.js"></script>
 <script src="assets/js/interactive.js"></script>
+<script src="assets/js/reader.js"></script>
+<script src="assets/js/guide.js"></script>
 </body>
 </html>

@@ -44,7 +44,7 @@ const ICONS = {
 const svgIcon = (name, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${ICONS[name] || ''}</svg>`;
 
 /* ---------- navigation ---------- */
-const MAIN_NAV = ['sHome', 'sTimeline', 'sStory', 'sPortfolio', 'sQuiz'];
+const MAIN_NAV = ['sHome', 'sTimeline', 'sRead', 'sPortfolio', 'sQuiz'];
 const RENDERED = new Set();
 function go(id, opts = {}) {
   $$('.screen').forEach(s => s.classList.remove('active'));
@@ -53,6 +53,8 @@ function go(id, opts = {}) {
   const chrome = id !== 's0';
   $('#topbar').classList.toggle('show', chrome);
   $('#botnav').classList.toggle('show', chrome);
+  const gw = $('#guideWrap'); if (gw) gw.style.display = chrome ? 'flex' : 'none';
+  if (!chrome && window.Guide) Guide.close();
   window.scrollTo(0, 0);
   setNav(MAIN_NAV.indexOf(id));
   renderScreen(id, opts);
@@ -68,6 +70,7 @@ function renderScreen(id, opts) {
     case 'sPeople': renderPeople(); break;
     case 'sWars': renderWars(); break;
     case 'sStory': if (!RENDERED.has('sStory')) { buildStory(); RENDERED.add('sStory'); } break;
+    case 'sRead': Reader.render(); break;
     case 'sMedia': renderMedia(); break;
     case 'sActivities': renderActivities(); break;
     case 'sQuiz': startQuiz(); break;
@@ -90,6 +93,7 @@ function begin() {
   State.name = v; save();
   unlock('first', 'First Steps');
   go('sHome');
+  window.Guide && Guide.init();
 }
 
 /* ---------- XP / rank / toast / badges ---------- */
@@ -107,7 +111,7 @@ const BADGES = {
 };
 function rankFor(xp) { let r = RANKS[0]; for (const x of RANKS) if (xp >= x.xp) r = x; return r; }
 function gainXP(n, msg) { State.xp += n; save(); $('#xpn').textContent = State.xp; if (msg) toast(msg); }
-function unlock(key, label) { if (!State.badges.includes(key)) { State.badges.push(key); save(); toast('🏅 Badge unlocked — ' + (label || BADGES[key])); } }
+function unlock(key, label) { if (!State.badges.includes(key)) { State.badges.push(key); save(); toast('🏅 Badge unlocked — ' + (label || BADGES[key])); window.Guide && Guide.react('badge'); } }
 let toastT;
 function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
 
@@ -116,7 +120,7 @@ function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('s
    ========================================================================== */
 const HUBS = [
   { id: 'sAtlas', ic: 'atlas', ac: 'var(--azure)', t: 'Curriculum Atlas', d: 'Your NCERT grade, indexed & linked' },
-  { id: 'sStory', ic: 'story', ac: 'var(--turq-d)', t: 'Story Mode', d: 'Live the history, scene by scene' },
+  { id: 'sRead', ic: 'story', ac: 'var(--turq-d)', t: 'Read the Book', d: 'One coherent, living textbook' },
   { id: 'sTimeline', ic: 'clock', ac: 'var(--purple)', t: 'Timeline', d: '1914 → 1947, interactive' },
   { id: 'sPeople', ic: 'people', ac: 'var(--orange)', t: 'Personalities', d: 'The people who shaped the age' },
   { id: 'sWars', ic: 'map', ac: 'var(--azure)', t: 'Wars & Map', d: 'WW1, WW2 and the battle map' },
@@ -136,7 +140,7 @@ function journeySteps() {
   const done = State.scenesRead.length, total = STORY.length;
   return [
     { ic: 'flag', t: 'Get set', d: 'You created your explorer profile.', done: true },
-    { ic: 'story', t: 'Read the story', d: `${done} of ${total} scenes read`, done: done >= total, go: 'sStory' },
+    { ic: 'story', t: 'Read the book', d: `${done} of ${total} chapters read`, done: done >= total, go: 'sRead' },
     { ic: 'clock', t: 'Explore the timeline', d: 'Trace how one event led to the next', done: State.badges.includes('timetraveller'), go: 'sTimeline' },
     { ic: 'map', t: 'Meet the people & places', d: 'Personalities and the battle map', done: State.mapPins.length > 0, go: 'sWars' },
     { ic: 'bolt', t: 'Take the quiz', d: State.quizBest == null ? 'Test yourself to earn XP' : `Best score: ${State.quizBest}%`, done: State.quizBest != null, go: 'sQuiz' },
@@ -171,7 +175,8 @@ function renderHome() {
       <div class="home-hc">
         <div class="eyebrow">${m.anchor}</div>
         <h1>From Trenches to <em>Tyranny</em></h1>
-        <p>${esc(m.subtitle)} — a living, gamified module aligned to your NCERT history.</p>
+        <p>${esc(m.subtitle)} — a living, gamified textbook aligned to your NCERT history.</p>
+        <button class="btn btn-g" style="margin-top:14px" onclick="go('sRead')">${svgIcon('story', 'width="16" height="16"')} Open the Book →</button>
       </div>
     </div>
 
@@ -376,6 +381,8 @@ function renderScene(i) {
   $('#rp').style.width = ((scIdx + 1) / STORY.length * 100) + '%';
   if (!State.scenesRead.includes(scIdx)) { State.scenesRead.push(scIdx); save(); gainXP(15, '+15 XP · Scene read'); }
   if (State.scenesRead.length >= STORY.length) unlock('storyteller');
+  // ground Sage in the current page so its answers are about what you're reading
+  window.readerContext = { title: s.ti, text: (s.su || '') + ' ' + (s.body || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() };
   bindGlossary();
   applyReveal();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -493,7 +500,7 @@ function answer(i, btn) {
   btn.classList.add(ok ? 'right' : 'wrong');
   if (!ok) $$('.qzopt')[q.c].classList.add('right');
   qAnswered++;
-  if (ok) { qCorrect++; const pts = Math.max(10, qLeft * 3); qScore += pts; gainXP(pts, '+' + pts + ' XP · Correct!'); $('#qzscv').textContent = qScore; }
+  if (ok) { qCorrect++; const pts = Math.max(10, qLeft * 3); qScore += pts; gainXP(pts, '+' + pts + ' XP · Correct!'); $('#qzscv').textContent = qScore; window.Guide && Guide.react('quiz'); }
   const fb = $('#qzfb'); fb.innerHTML = q.fb; fb.classList.add('show');
   $('#' + (qCur < QUIZ.length - 1 ? 'qznext' : 'qzend')).style.display = 'inline-flex';
 }
