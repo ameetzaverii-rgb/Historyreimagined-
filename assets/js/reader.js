@@ -50,10 +50,21 @@ const Reader = (() => {
       </div>
       <div class="bk-body">
         <p class="bk-para reveal ${s.lead ? 'dropcap' : ''}">${s.body}</p>
+        ${mediaBlock(i)}
         <div class="bk-extra reveal">${renderExtra(s.extra)}</div>
         ${brk ? `<div class="bk-break reveal"><div class="bk-break-t">${svgIcon('flag', 'width="15" height="15"')} ${esc(brk.t)}</div><p>${esc(brk.d)}</p><button class="btn btn-g btn-sm" onclick="go('${brk.go}')">${esc(brk.btn)} →</button></div>` : ''}
       </div>
     </article>`;
+  }
+
+  // real images + contextual YouTube woven into the chapter
+  function mediaBlock(i) {
+    const m = (typeof CHAPTER_MEDIA !== 'undefined' && CHAPTER_MEDIA[i]) || null;
+    if (!m) return '';
+    let out = '';
+    if (m.gallery) out += m.gallery.map(g => `<figure class="bk-figure reveal">${img(g.src, 'bk-fig-img', g.cap)}<figcaption>${esc(g.cap)}</figcaption></figure>`).join('');
+    if (m.video) out += `<figure class="bk-video reveal"><div class="bk-video-frame"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${m.video}" title="${esc(m.vlabel || 'Video')}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div><figcaption>${esc(m.vlabel || 'Watch')}</figcaption></figure>`;
+    return out;
   }
 
   function endCard() {

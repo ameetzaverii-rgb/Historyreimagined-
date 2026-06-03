@@ -160,57 +160,56 @@ function renderJourney() {
     </div>`;
   }).join('')}</div>`;
 }
+const EXPLORE = [
+  ['sTimeline', 'clock', 'Timeline'], ['sPeople', 'people', 'People'], ['sWars', 'map', 'Maps'],
+  ['sDecide', 'flag', 'You Decide'], ['sDetective', 'target', 'Detective'], ['sSort', 'check', 'Sort'],
+  ['sDebate', 'share', 'Debate'], ['sLocal', 'map', 'Near You'], ['sActivities', 'target', 'Try It'],
+  ['sMedia', 'media', 'Videos'], ['sAtlas', 'atlas', 'Atlas'],
+];
 function renderHome() {
-  const m = MODULE, r = rankFor(State.xp), pct = Math.round(journeySteps().filter(s => s.done).length / journeySteps().length * 100);
+  const m = MODULE, r = rankFor(State.xp);
+  const steps = journeySteps(); const next = steps.find(s => !s.done) || steps[steps.length - 1];
+  const started = State.scenesRead.length > 0;
   $('#homePane').innerHTML = `
     <div class="greetstrip">
       <div class="greetav">${State.avatar}</div>
-      <div class="greetb"><h3>Hi ${esc(State.name || 'Explorer')} 👋</h3><p>${r.t} · ${State.xp} XP · Journey ${pct}% complete</p></div>
+      <div class="greetb"><h3>Hi ${esc(State.name || 'Explorer')} 👋</h3><p>${r.t} · ${State.xp} XP</p></div>
       <div class="gradetag" onclick="go('sAtlas')">Class ${State.grade} ›</div>
     </div>
 
     <div class="home-hero">
-      ${img(m.hero, '', 'Module hero')}
+      ${img(m.hero, '', 'Cover')}
       <div class="home-hg"></div>
       <div class="home-hc">
-        <div class="eyebrow">${m.anchor}</div>
+        <div class="eyebrow">${esc(m.anchor)}</div>
         <h1>From Trenches to <em>Tyranny</em></h1>
-        <p>${esc(m.subtitle)} — a living, gamified textbook aligned to your NCERT history.</p>
-        <button class="btn btn-g" style="margin-top:14px" onclick="go('sRead')">${svgIcon('story', 'width="16" height="16"')} Open the Book →</button>
+        <p>${esc(m.subtitle)}</p>
+        <button class="btn btn-g" style="margin-top:14px" onclick="go('sRead')">${svgIcon('story', 'width="16" height="16"')} ${started ? 'Continue reading' : 'Start reading'} →</button>
       </div>
     </div>
 
-    <div class="sec-head"><div class="eyebrow">${svgIcon('flag', 'width="14" height="14"')} Your learning journey</div><h2 class="h2">The Journey Map</h2><p class="lead">Your progress is saved as you go. Tap any step to jump in.</p></div>
+    <div class="continue" onclick="go('${next.go || 'sRead'}')">
+      <div class="cont-ic">${svgIcon(next.ic)}</div>
+      <div class="cont-b"><div class="cont-lbl">Up next for you</div><h3>${esc(next.t)}</h3><p>${esc(next.d)}</p></div>
+      <div class="cont-go">→</div>
+    </div>
+
+    <div class="sec-head" style="margin-top:28px"><div class="eyebrow">${svgIcon('flag', 'width="14" height="14"')} Your journey</div><h2 class="h2">How far you’ve come</h2></div>
     ${renderJourney()}
 
     <div class="divider"></div>
-    <div class="eq"><small>The Essential Question</small>${esc(m.essentialQuestion)}</div>
-
-    <div class="sec-head"><div class="eyebrow">Choose your path</div><h2 class="h2">Explore the Module</h2></div>
-    <div class="hubgrid">
-      ${HUBS.map(h => `<div class="hubcard" style="--accent:${h.ac}" onclick="go('${h.id}')"><span class="hi">${svgIcon(h.ic)}</span><h3>${h.t}</h3><p>${h.d}</p></div>`).join('')}
+    <div class="sec-head"><h2 class="h2">Explore</h2><p class="lead">Dip into any part of the story whenever you like.</p></div>
+    <div class="explore-row">
+      ${EXPLORE.map(([id, ic, t]) => `<button class="explore-chip" onclick="go('${id}')">${svgIcon(ic)}<span>${t}</span></button>`).join('')}
     </div>
 
     <div class="divider"></div>
-    <div class="sec-head"><div class="eyebrow">Gagné #2 · Inform objectives</div><h2 class="h2">What you'll be able to do</h2></div>
-    <ul class="obj">${m.objectives.map(o => `<li>${esc(o)}</li>`).join('')}</ul>
-
-    <div class="divider"></div>
-    <div class="sec-head"><div class="eyebrow">Learning science, built in</div><h2 class="h2">Gagné's 9 Events of Instruction</h2><p class="lead">Every feature in this app maps to a proven teaching step — tap any to jump there.</p></div>
-    <div class="gagne">${m.gagne.map(g => `<div class="gstep" onclick="go('${mapWhere(g.where)}')"><div class="gn">Event ${g.n}</div><h4>${esc(g.t)}</h4><p>${esc(g.d)}</p></div>`).join('')}</div>
-
-    <div class="divider"></div>
-    <div class="sec-head"><div class="eyebrow">Multiple strategies</div><h2 class="h2">Bloom's Taxonomy Ladder</h2><p class="lead">You won't just remember — you'll climb all the way to <em>create</em>.</p></div>
-    <div class="bloom">${m.bloom.map(b => `<div class="brung" style="background:${b.color}"><span class="bl">L${b.level}</span><span class="bt">${b.t}</span><span class="bv">${esc(b.verb)}</span></div>`).join('')}</div>
-
-    <div class="divider"></div>
-    <div class="sec-head"><div class="eyebrow">Did you know?</div><h2 class="h2">An interesting fact</h2></div>
-    <div class="scfact"><div class="scfl">Interstitial</div><p id="homeFact">${esc(FACTS[Math.floor(Math.random() * FACTS.length)])}</p></div>
-    <div style="margin-top:12px"><button class="btn btn-o btn-sm" onclick="$('#homeFact').textContent=FACTS[Math.floor(Math.random()*FACTS.length)]">↻ Another fact</button></div>
-
-    <div style="height:8px"></div>`;
+    <div class="factstrip">
+      <div class="fact-ic">💡</div>
+      <div style="flex:1"><div class="cont-lbl">Did you know?</div><p id="homeFact">${esc(FACTS[Math.floor(Math.random() * FACTS.length)])}</p></div>
+      <button class="fact-more" onclick="$('#homeFact').textContent=FACTS[Math.floor(Math.random()*FACTS.length)]" aria-label="Another fact">↻</button>
+    </div>`;
 }
-function mapWhere(w) { return ({ story: 'sStory', home: 'sHome', atlas: 'sAtlas', tutor: 'sMedia', activities: 'sActivities', quiz: 'sQuiz', rank: 'sRank', portfolio: 'sPortfolio' })[w] || 'sHome'; }
 
 /* ============================================================================
    CURRICULUM ATLAS  (Gagné #3 Recall — links to prior + related chapters)
@@ -377,14 +376,13 @@ function buildStory() {
 function renderScene(i) {
   scIdx = Math.max(0, Math.min(STORY.length - 1, i));
   const s = STORY[scIdx];
-  const bcolor = (MODULE.bloom.find(b => b.t === s.bloom) || {}).color || 'var(--gold)';
   $('#shimg').onerror = function () { imgErr(this, s.ti); };
   $('#shimg').src = s.img;
   $('#shch').textContent = s.ch;
   $('#shtitle').textContent = s.ti;
   $('#shsub').textContent = s.su;
   $('#shcr').textContent = s.cr || '';
-  const bl = $('#shbloom'); bl.textContent = "Bloom · " + s.bloom; bl.style.background = bcolor;
+  const bl = $('#shbloom'); if (bl) bl.style.display = 'none';
   $('#sdidx').textContent = scIdx + 1;
   $('#sdrow').innerHTML = STORY.map((_, j) => `<div class="sddot ${j < scIdx ? 'done' : j === scIdx ? 'now' : ''}" onclick="renderScene(${j})"></div>`).join('');
   $('#scBody').className = 'scbody' + (s.lead ? ' firstcap' : '');
@@ -469,15 +467,14 @@ function oerIcon(tag) { return ({ Textbook: '📕', Article: '📝', Lesson: '�
    ========================================================================== */
 function renderActivities() {
   $('#activitiesPane').innerHTML = `
-    <div class="sec-head"><div class="eyebrow">Do history, don't just read it</div><h2 class="h2">Bloom's Activity Ladder</h2><p class="lead">Each task adds a starter card to your Walkthrough folder. Climb from <em>remember</em> all the way to <em>create</em>.</p></div>
-    <div class="actgrid">${ACTIVITIES.map(a => {
-      const b = MODULE.bloom.find(x => x.t === a.bloom) || {};
-      return `<div class="actcard">
-        <div class="ah"><span class="aico">${a.icon}</span><span class="actbloom" style="background:${b.color}">${a.bloom}</span></div>
+    <div class="sec-head"><div class="eyebrow">Make it yours</div><h2 class="h2">Try It Yourself</h2>
+      <p class="lead">Short thinking tasks — no grades, no pressure. Tap one and it pops a starter note into your <b>Folder</b>, ready for you to finish in your own words. Great for revision or homework.</p></div>
+    <div class="howto"><span>${svgIcon('check', 'width="15" height="15"')}</span> <b>How it works:</b> Pick a task → finish the note in your Folder → present it or share it with friends.</div>
+    <div class="actgrid">${ACTIVITIES.map(a => `<div class="actcard">
+        <div class="ah"><span class="aico">${a.icon}</span></div>
         <h4>${esc(a.t)}</h4><p>${esc(a.d)}</p>
-        <button class="btn btn-g btn-sm" onclick='Portfolio.add("note", ${JSON.stringify(a.t)}, ${JSON.stringify(a.starter)});toast("Added to your folder — go finish it!");gainXP(10,"+10 XP · Activity started")'>+ Start in my folder</button>
-      </div>`;
-    }).join('')}</div>`;
+        <button class="btn btn-g btn-sm" onclick='Portfolio.add("note", ${JSON.stringify(a.t)}, ${JSON.stringify(a.starter)});toast("Added to your Folder — open Folder to finish");gainXP(10,"+10 XP · Nice start")'>+ Add to my Folder</button>
+      </div>`).join('')}</div>`;
 }
 
 /* ============================================================================
@@ -491,10 +488,9 @@ function startQuiz() {
 function renderQ() {
   if (qCur >= QUIZ.length) return endQuiz();
   const q = QUIZ[qCur];
-  const b = MODULE.bloom.find(x => x.t === q.bloom) || {};
   $('#quizPane').innerHTML = `
     <div class="qzpips">${QUIZ.map((_, i) => `<div class="qzpip ${i < qCur ? 'done' : i === qCur ? 'now' : ''}"></div>`).join('')}</div>
-    <div class="qzmeta"><span class="qzbloom" style="background:${b.color}">Bloom · ${q.bloom}</span><span class="qztime">Q ${qCur + 1}/${QUIZ.length} · <span id="qzt">30</span>s</span></div>
+    <div class="qzmeta"><span class="qzbloom" style="background:rgba(255,255,255,.16)">Question ${qCur + 1} of ${QUIZ.length}</span><span class="qztime"><span id="qzt">30</span>s left</span></div>
     <div class="qzq">${esc(q.q)}</div>
     <div class="qzopts">${q.o.map((o, i) => `<button class="qzopt" data-i="${i}"><span class="qzlt">${'ABCD'[i]}</span>${esc(o)}</button>`).join('')}</div>
     <div class="qzfb" id="qzfb"></div>

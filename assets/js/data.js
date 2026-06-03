@@ -368,3 +368,14 @@ const CLASS_WALL_SEED = [
   { name: 'Meera', avatar: '\u{1F469}‍\u{1F4BB}', text: 'I think Versailles was too harsh — it basically guaranteed round 2. Anyone disagree?', tag: 'Evaluate', t: '5h' },
   { name: 'Kabir', avatar: '\u{1F9D1}', text: 'The Anne Frank scene got me. She was literally our age. 💔', tag: 'Reflection', t: '1d' },
 ];
+
+/* ---- Contextual media woven INTO reader chapters (by chapter index) ---- */
+const CHAPTER_MEDIA = {
+  0: { video: 'KGlmlSTn-eM', vlabel: 'Watch: How the world stumbled into WW1 (CrashCourse)' },
+  1: { video: '_XPZQ0LAlR4', vlabel: 'Watch: World War I explained (CrashCourse #36)',
+       gallery: [{ src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Australian_infantry_small_box_respirators_Ypres_1917.jpg/1024px-Australian_infantry_small_box_respirators_Ypres_1917.jpg', cap: 'Soldiers in gas masks, Ypres 1917 — the grim reality of the trenches.' }] },
+  2: { gallery: [{ src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/President_Woodrow_Wilson_portrait_December_2_1912.jpg/480px-President_Woodrow_Wilson_portrait_December_2_1912.jpg', cap: 'US President Woodrow Wilson hoped for a “just peace” and a League of Nations.' }] },
+  4: { gallery: [{ src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Bundesarchiv_Bild_183-1982-1130-502%2C_N%C3%BCrnberg%2C_Reichsparteitag%2C_Lichtdom.jpg/800px-Bundesarchiv_Bild_183-1982-1130-502%2C_N%C3%BCrnberg%2C_Reichsparteitag%2C_Lichtdom.jpg', cap: 'A vast Nazi rally at Nuremberg — propaganda turned politics into spectacle.' }] },
+  5: { video: 'Q78COTwT7nE', vlabel: 'Watch: World War II explained (CrashCourse #38)' },
+  6: { gallery: [{ src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mahatma-Gandhi%2C_studio%2C_1931.jpg/480px-Mahatma-Gandhi%2C_studio%2C_1931.jpg', cap: 'Mahatma Gandhi — India’s freedom came just two years after the war.' }] },
+};
