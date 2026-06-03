@@ -215,13 +215,32 @@ const WARS = [
 ];
 
 // Map pins for the WW1 → WW2 theatre (positioned on a Europe schematic, % coords)
+// Each has a THEN (history) and a NOW (live Google Map + the place today).
 const MAP_PINS = [
-  { id: 'sarajevo', x: 56, y: 62, side: 'spark', t: 'Sarajevo', tag: 'WW1 · 1914', tx: 'Where the assassination of Franz Ferdinand sparked WW1.', fa: 'One bullet here pulled all of Europe into war within six weeks.' },
-  { id: 'versailles', x: 30, y: 47, side: 'politics', t: 'Versailles', tag: 'Peace · 1919', tx: 'The palace where Germany was forced to sign the treaty.', fa: 'Germans called it the "Diktat" — a dictated peace, not a negotiated one.' },
-  { id: 'berlin', x: 50, y: 38, side: 'axis', t: 'Berlin', tag: 'Nazi Capital', tx: 'Heart of Nazi Germany; where Hitler took power in 1933 and died in 1945.', fa: 'A democracy was dismantled here in months — legally, from within.' },
-  { id: 'stalingrad', x: 82, y: 42, side: 'allied', t: 'Stalingrad', tag: 'WW2 · 1943', tx: 'The Soviet Union destroyed the German 6th Army here.', fa: 'The single bloodiest battle in human history — the war’s turning point.' },
-  { id: 'normandy', x: 26, y: 42, side: 'allied', t: 'Normandy', tag: 'D-Day · 1944', tx: 'The largest seaborne invasion in history opened the Western Front.', fa: '156,000 troops crossed the Channel in a single day.' },
-  { id: 'auschwitz', x: 58, y: 40, side: 'victim', t: 'Auschwitz', tag: 'Holocaust', tx: 'The largest Nazi death camp, in occupied Poland.', fa: 'Over 1.1 million people were murdered here — most of them Jewish.' },
+  { id: 'sarajevo', x: 56, y: 62, side: 'spark', t: 'Sarajevo', tag: 'WW1 · 1914', flag: '🇧🇦',
+    tx: 'Where the assassination of Archduke Franz Ferdinand sparked WW1.', fa: 'One bullet here pulled all of Europe into war within six weeks.',
+    place: 'Sarajevo, Bosnia and Herzegovina',
+    today: 'Today Sarajevo is the lively capital of Bosnia and Herzegovina — a meeting point of cultures where Ottoman mosques, Catholic and Orthodox churches and a synagogue stand within minutes of each other. Its old bazaar, Baščaršija, buzzes with coffee houses, and the city hosted the 1984 Winter Olympics.' },
+  { id: 'versailles', x: 30, y: 47, side: 'politics', t: 'Versailles', tag: 'Peace · 1919', flag: '🇫🇷',
+    tx: 'The palace where Germany was forced to sign the treaty ending WW1.', fa: 'Germans called it the "Diktat" — a dictated peace, not a negotiated one.',
+    place: 'Palace of Versailles, France',
+    today: 'The Palace of Versailles near Paris is now a UNESCO World Heritage Site and one of the world’s most visited museums, famous for its dazzling Hall of Mirrors — the very room where the treaty was signed — and its vast formal gardens.' },
+  { id: 'berlin', x: 50, y: 38, side: 'axis', t: 'Berlin', tag: 'Nazi Capital', flag: '🇩🇪',
+    tx: 'Heart of Nazi Germany — where Hitler took power in 1933 and died in 1945.', fa: 'A democracy was dismantled here in months — legally, from within.',
+    place: 'Brandenburg Gate, Berlin, Germany',
+    today: 'Berlin is the creative, open capital of a democratic, reunified Germany — a world capital of art, music and nightlife. The Brandenburg Gate and preserved fragments of the Berlin Wall remind visitors how a divided city became a symbol of freedom.' },
+  { id: 'stalingrad', x: 82, y: 42, side: 'allied', t: 'Stalingrad', tag: 'WW2 · 1943', flag: '🇷🇺',
+    tx: 'The Soviet Union destroyed the German 6th Army here — the war’s turning point.', fa: 'Often called the single bloodiest battle in human history.',
+    place: 'The Motherland Calls, Volgograd, Russia',
+    today: 'Stalingrad is now called Volgograd. Towering over the city is "The Motherland Calls", one of the tallest statues on Earth, honouring those who died. The riverside city is a major industrial hub on the Volga.' },
+  { id: 'normandy', x: 26, y: 42, side: 'allied', t: 'Normandy', tag: 'D-Day · 1944', flag: '🇫🇷',
+    tx: 'The largest seaborne invasion in history opened the Western Front.', fa: '156,000 troops crossed the Channel in a single day.',
+    place: 'Normandy American Cemetery, Colleville-sur-Mer, France',
+    today: 'The Normandy coast in France is a place of remembrance — cemeteries, museums and the preserved beaches (Omaha, Utah, Juno). The wider region is also famous for its apple orchards, cider, Camembert cheese and pretty seaside towns.' },
+  { id: 'auschwitz', x: 58, y: 40, side: 'victim', t: 'Auschwitz', tag: 'Holocaust', flag: '🇵🇱',
+    tx: 'The largest Nazi death camp, in German-occupied Poland.', fa: 'Over 1.1 million people were murdered here — most of them Jewish.',
+    place: 'Auschwitz-Birkenau Memorial and Museum, Oświęcim, Poland',
+    today: 'The site is preserved as the Auschwitz-Birkenau Memorial and Museum near the Polish town of Oświęcim. People from across the world visit so that the world never forgets — a solemn promise of "never again".' },
 ];
 
 /* --------------------------------------------------------------------------

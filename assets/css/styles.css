@@ -579,3 +579,11 @@ a{color:var(--azure)}
 .bk-end p{font-family:var(--fread);font-style:italic;font-size:16px;color:rgba(255,255,255,.82);max-width:440px;margin:8px auto 24px}
 .bk-end-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 @media(max-width:560px){.bk-para{font-size:18.5px}.bk-cover-c{padding-bottom:16vh}}
+
+/* dual-section map card (Then / Now + live Google Map) */
+.mapinfo{max-height:74vh;overflow-y:auto;max-width:360px}
+.maptabs{display:flex;gap:6px;margin:10px 0 12px}
+.maptab{flex:1;font-family:var(--fk);font-weight:700;font-size:11px;padding:8px;border-radius:var(--pill);border:1.5px solid var(--line);background:#fff;color:var(--ink3);cursor:pointer;transition:.18s}
+.maptab.on{background:var(--azure);color:#fff;border-color:var(--azure)}
+.mapframe{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);height:170px}
+.mapframe iframe{width:100%;height:100%;border:0;display:block;filter:saturate(1.05)}

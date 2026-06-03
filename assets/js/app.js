@@ -349,8 +349,21 @@ function openPin(id) {
   const p = MAP_PINS.find(x => x.id === id); if (!p) return;
   if (!State.mapPins.includes(id)) { State.mapPins.push(id); save(); if (State.mapPins.length >= 3) unlock('cartographer'); }
   gainXP(6, '+6 XP · Location explored');
-  $('#mapinfoBody').innerHTML = `<div class="mt">${esc(p.tag)}</div><h4>${esc(p.t)}</h4><p>${esc(p.tx)}</p><div class="mf">${esc(p.fa)}</div>`;
+  $('#mapinfoBody').innerHTML = `
+    <div class="mt">${p.flag || ''} ${esc(p.tag)}</div><h4>${esc(p.t)}</h4>
+    <div class="maptabs"><button class="maptab on" id="mtThen" onclick="mapTab('then')">Then · history</button><button class="maptab" id="mtNow" onclick="mapTab('now')">Now · today</button></div>
+    <div id="mapThen"><p>${esc(p.tx)}</p><div class="mf">${esc(p.fa)}</div></div>
+    <div id="mapNow" hidden>
+      <div class="mapframe"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=${encodeURIComponent(p.place || p.t)}&z=11&output=embed" title="${esc(p.t)} on the map"></iframe></div>
+      <p style="margin-top:9px">${esc(p.today || '')}</p>
+    </div>`;
   $('#mapinfo').classList.add('open');
+}
+function mapTab(which) {
+  const now = which === 'now';
+  $('#mapThen').hidden = now; $('#mapNow').hidden = !now;
+  $('#mtThen').classList.toggle('on', !now); $('#mtNow').classList.toggle('on', now);
+  if (now) gainXP(3, '+3 XP · The place today');
 }
 
 /* ============================================================================
