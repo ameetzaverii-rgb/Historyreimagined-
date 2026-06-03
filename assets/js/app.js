@@ -12,9 +12,10 @@ function loadState() {
   catch { return defaults(); }
 }
 function defaults() {
-  return { name: '', avatar: '🧑‍🎓', xp: 0, scenesRead: [], quizBest: null, badges: [], mapPins: [] };
+  return { name: '', avatar: '🧑‍🎓', grade: 9, xp: 0, scenesRead: [], quizBest: null, badges: [], mapPins: [] };
 }
 function save() { localStorage.setItem(SAVE_KEY, JSON.stringify(State)); }
+let atlasGrade = null; // which grade the Curriculum Atlas is currently showing
 
 /* ---------- tiny DOM helpers ---------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -23,6 +24,24 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 // graceful image fallback: turns broken images into a captioned placeholder block
 window.imgErr = (el, cap) => { el.classList.add('imgfallback'); el.removeAttribute('src'); el.setAttribute('data-cap', cap || 'Archive image'); el.onerror = null; };
 const img = (src, cls, cap, attrs = '') => `<img class="${cls}" src="${src}" alt="${esc(cap || '')}" loading="lazy" onerror="imgErr(this,'${esc((cap || '').slice(0, 40))}')" ${attrs}>`;
+
+/* ---------- modern line-icon set (stroke-based, GSL style) ---------- */
+const ICONS = {
+  atlas: '<path d="M4 5a2 2 0 012-2h5v18H6a2 2 0 01-2-2z"/><path d="M20 5a2 2 0 00-2-2h-5v18h5a2 2 0 002-2z"/>',
+  story: '<path d="M12 6c-2-1.4-5-1.4-7 0v12c2-1.4 5-1.4 7 0 2-1.4 5-1.4 7 0V6c-2-1.4-5-1.4-7 0z"/><path d="M12 6v12"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+  people: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0111 0"/><path d="M16 5.6a3 3 0 010 5.2"/><path d="M16.8 13.5a5.5 5.5 0 013.7 5.5"/>',
+  map: '<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
+  media: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M11 9.2l4 2.8-4 2.8z"/>',
+  target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>',
+  folder: '<path d="M3 8a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>',
+  bolt: '<path d="M13 2L4 14h6l-1 8 9-12h-6z"/>',
+  medal: '<circle cx="12" cy="14.5" r="6"/><path d="M9 9.5L6 3M15 9.5L18 3"/><path d="M12 11.5l1 2 2 .3-1.5 1.4.4 2-1.9-1-1.9 1 .4-2L9 13.8l2-.3z"/>',
+  share: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>',
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+};
+const svgIcon = (name, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${ICONS[name] || ''}</svg>`;
 
 /* ---------- navigation ---------- */
 const MAIN_NAV = ['sHome', 'sTimeline', 'sStory', 'sPortfolio', 'sQuiz'];
@@ -59,6 +78,7 @@ function renderScreen(id, opts) {
 
 /* ---------- onboarding ---------- */
 function pickAvatar(el) { $$('.s0av').forEach(a => a.classList.remove('on')); el.classList.add('on'); State.avatar = el.textContent; }
+function pickGrade(n, el) { $$('.gchip').forEach(a => a.classList.remove('on')); el.classList.add('on'); State.grade = n; atlasGrade = n; }
 function begin() {
   const v = $('#nameinp').value.trim();
   if (!v) { const i = $('#nameinp'); i.style.borderBottomColor = 'var(--red)'; i.focus(); setTimeout(() => i.style.borderBottomColor = '', 1200); return; }
@@ -90,35 +110,70 @@ function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('s
    HOME  (Gagné #2 Inform Objectives, #3 Recall, overview of everything)
    ========================================================================== */
 const HUBS = [
-  { id: 'sAtlas', i: '📚', t: 'Curriculum Atlas', d: 'NCERT Grades 8·9·10, indexed & linked' },
-  { id: 'sStory', i: '📖', t: 'Story Mode', d: 'Live the history, scene by scene' },
-  { id: 'sTimeline', i: '🕰️', t: 'Timeline', d: '1914 → 1947, interactive' },
-  { id: 'sPeople', i: '👤', t: 'Personalities', d: 'The people who shaped the age' },
-  { id: 'sWars', i: '🗺️', t: 'Wars & Map', d: 'WW1, WW2 and the battle map' },
-  { id: 'sMedia', i: '🎬', t: 'Media Library', d: 'Open resources & video' },
-  { id: 'sActivities', i: '🎯', t: 'Activity Ladder', d: "Bloom's tasks → your folder" },
-  { id: 'sPortfolio', i: '🗂️', t: 'My Walkthrough', d: 'Build & share your folder' },
-  { id: 'sQuiz', i: '⚡', t: 'Quiz', d: 'Test yourself, earn XP' },
-  { id: 'sRank', i: '🎖️', t: 'Progress', d: 'XP, ranks & badges' },
+  { id: 'sAtlas', ic: 'atlas', ac: 'var(--azure)', t: 'Curriculum Atlas', d: 'Your NCERT grade, indexed & linked' },
+  { id: 'sStory', ic: 'story', ac: 'var(--turq-d)', t: 'Story Mode', d: 'Live the history, scene by scene' },
+  { id: 'sTimeline', ic: 'clock', ac: 'var(--purple)', t: 'Timeline', d: '1914 → 1947, interactive' },
+  { id: 'sPeople', ic: 'people', ac: 'var(--orange)', t: 'Personalities', d: 'The people who shaped the age' },
+  { id: 'sWars', ic: 'map', ac: 'var(--azure)', t: 'Wars & Map', d: 'WW1, WW2 and the battle map' },
+  { id: 'sMedia', ic: 'media', ac: 'var(--purple)', t: 'Media Library', d: 'Open resources & video' },
+  { id: 'sActivities', ic: 'target', ac: 'var(--turq-d)', t: 'Activity Ladder', d: "Bloom's tasks → your folder" },
+  { id: 'sPortfolio', ic: 'folder', ac: 'var(--orange)', t: 'My Walkthrough', d: 'Build & share your folder' },
+  { id: 'sQuiz', ic: 'bolt', ac: 'var(--azure)', t: 'Quiz', d: 'Test yourself, earn XP' },
+  { id: 'sRank', ic: 'medal', ac: 'var(--turq-d)', t: 'Progress', d: 'XP, ranks & badges' },
 ];
+// Student-facing journey map (derived from stored progress, so it persists).
+function journeySteps() {
+  const done = State.scenesRead.length, total = STORY.length;
+  return [
+    { ic: 'flag', t: 'Get set', d: 'You created your explorer profile.', done: true },
+    { ic: 'story', t: 'Read the story', d: `${done} of ${total} scenes read`, done: done >= total, go: 'sStory' },
+    { ic: 'clock', t: 'Explore the timeline', d: 'Trace how one event led to the next', done: State.badges.includes('timetraveller'), go: 'sTimeline' },
+    { ic: 'map', t: 'Meet the people & places', d: 'Personalities and the battle map', done: State.mapPins.length > 0, go: 'sWars' },
+    { ic: 'bolt', t: 'Take the quiz', d: State.quizBest == null ? 'Test yourself to earn XP' : `Best score: ${State.quizBest}%`, done: State.quizBest != null, go: 'sQuiz' },
+    { ic: 'folder', t: 'Build your walkthrough', d: 'Collect your learning into a folder', done: State.badges.includes('curator'), go: 'sPortfolio' },
+    { ic: 'share', t: 'Teach a friend', d: 'Share on the class collaboration wall', done: State.badges.includes('collaborator'), go: 'sPortfolio' },
+  ];
+}
+function renderJourney() {
+  const steps = journeySteps();
+  const nowI = steps.findIndex(s => !s.done);
+  return `<div class="journey">${steps.map((s, i) => {
+    const cls = s.done ? 'done' : (i === nowI ? 'now' : '');
+    const meta = s.done ? '✓ Done' : (i === nowI ? 'You are here' : 'Up next');
+    return `<div class="jstep ${cls}">
+      <div class="jrail"><div class="jnode">${s.done ? svgIcon('check') : svgIcon(s.ic)}</div>${i === steps.length - 1 ? '' : '<div class="jline"></div>'}</div>
+      <div class="jbody" ${s.go ? `onclick="go('${s.go}')"` : ''}><div class="jmeta">${meta}</div><h4>${esc(s.t)}</h4><p>${esc(s.d)}</p></div>
+    </div>`;
+  }).join('')}</div>`;
+}
 function renderHome() {
-  const m = MODULE;
+  const m = MODULE, r = rankFor(State.xp), pct = Math.round(journeySteps().filter(s => s.done).length / journeySteps().length * 100);
   $('#homePane').innerHTML = `
+    <div class="greetstrip">
+      <div class="greetav">${State.avatar}</div>
+      <div class="greetb"><h3>Hi ${esc(State.name || 'Explorer')} 👋</h3><p>${r.t} · ${State.xp} XP · Journey ${pct}% complete</p></div>
+      <div class="gradetag" onclick="go('sAtlas')">Class ${State.grade} ›</div>
+    </div>
+
     <div class="home-hero">
       ${img(m.hero, '', 'Module hero')}
       <div class="home-hg"></div>
       <div class="home-hc">
         <div class="eyebrow">${m.anchor}</div>
         <h1>From Trenches to <em>Tyranny</em></h1>
-        <p>${esc(m.subtitle)} — a living, gamified module that threads through your NCERT history across Grades 8, 9 &amp; 10.</p>
+        <p>${esc(m.subtitle)} — a living, gamified module aligned to your NCERT history.</p>
       </div>
     </div>
 
+    <div class="sec-head"><div class="eyebrow">${svgIcon('flag', 'width="14" height="14"')} Your learning journey</div><h2 class="h2">The Journey Map</h2><p class="lead">Your progress is saved as you go. Tap any step to jump in.</p></div>
+    ${renderJourney()}
+
+    <div class="divider"></div>
     <div class="eq"><small>The Essential Question</small>${esc(m.essentialQuestion)}</div>
 
     <div class="sec-head"><div class="eyebrow">Choose your path</div><h2 class="h2">Explore the Module</h2></div>
     <div class="hubgrid">
-      ${HUBS.map(h => `<div class="hubcard" onclick="go('${h.id}')"><span class="arrow">→</span><span class="hi">${h.i}</span><h3>${h.t}</h3><p>${h.d}</p></div>`).join('')}
+      ${HUBS.map(h => `<div class="hubcard" style="--accent:${h.ac}" onclick="go('${h.id}')"><span class="hi">${svgIcon(h.ic)}</span><h3>${h.t}</h3><p>${h.d}</p></div>`).join('')}
     </div>
 
     <div class="divider"></div>
@@ -145,31 +200,38 @@ function mapWhere(w) { return ({ story: 'sStory', home: 'sHome', atlas: 'sAtlas'
 /* ============================================================================
    CURRICULUM ATLAS  (Gagné #3 Recall — links to prior + related chapters)
    ========================================================================== */
+function setAtlasGrade(n) { atlasGrade = n; renderAtlas(); }
 function renderAtlas() {
   unlock('atlas');
+  if (atlasGrade == null) atlasGrade = State.grade || 9;
+  const g = NCERT.grades.find(x => x.grade === atlasGrade) || NCERT.grades[1];
+  const isYours = atlasGrade === State.grade;
   $('#atlasPane').innerHTML = `
-    <div class="sec-head"><div class="eyebrow">NCERT Social Science · indexed</div><h2 class="h2">Curriculum Atlas</h2>
-      <p class="lead">The whole History curriculum for Grades 8–10, with the chapters this module draws on highlighted. Tap any chapter to open the official NCERT PDF.</p></div>
+    <div class="sec-head"><div class="eyebrow">${svgIcon('atlas', 'width="14" height="14"')} NCERT Social Science</div><h2 class="h2">Curriculum Atlas</h2>
+      <p class="lead">${isYours ? `Showing <b>Class ${atlasGrade}</b> — your grade.` : `Showing <b>Class ${atlasGrade}</b>.`} The chapter this module is built on is highlighted. Tap any chapter to open the official NCERT PDF.</p></div>
 
-    <div class="scfact" style="margin-bottom:22px"><div class="scfl">Cross-grade thread</div><p>This single story runs across three years of school: <strong>Grade 8</strong> explains colonial India that sent millions to the World Wars → <strong>Grade 9</strong> covers the revolutions and the rise of Nazism at the centre of this module → <strong>Grade 10</strong> shows how nationalism and a connected world were reshaped by these wars.</p></div>
+    <div class="gradeswitch">
+      ${NCERT.grades.map(x => `<button class="gsw ${x.grade === atlasGrade ? 'on' : ''}" onclick="setAtlasGrade(${x.grade})">Class ${x.grade}${x.grade === State.grade ? ' ★' : ''}</button>`).join('')}
+    </div>
 
-    ${NCERT.grades.map(g => `
-      <div class="gradeblock">
-        <div class="gradehd">
-          <div class="gradebadge"><b>${g.grade}</b><span>CLASS</span></div>
-          <div><h3>${esc(g.subject)}</h3><p>${esc(g.blurb)}</p></div>
-        </div>
-        <div class="chaplist">
-          ${g.chapters.map(c => `
-            <a class="chaprow ${c.anchor ? 'anchor' : ''}" href="${NCERT.pdfBase}${c.pdf}" target="_blank" rel="noopener" onclick="gainXP(5,'+5 XP · Opened a source')">
-              <span class="chapn">${c.n}</span>
-              <span class="chapt">${esc(c.t)}</span>
-              ${c.anchor ? '<span class="chiptag red">Module anchor</span>' : c.link ? '<span class="chiptag gold">Linked</span>' : '<span class="chiptag">PDF ↗</span>'}
-            </a>`).join('')}
-        </div>
-      </div>`).join('')}
+    <div class="gradeblock">
+      <div class="gradehd">
+        <div class="gradebadge"><b>${g.grade}</b><span>CLASS</span></div>
+        <div><h3>${esc(g.subject)}</h3><p>${esc(g.blurb)}</p></div>
+      </div>
+      <div class="chaplist">
+        ${g.chapters.map(c => `
+          <a class="chaprow ${c.anchor ? 'anchor' : ''}" href="${NCERT.pdfBase}${c.pdf}" target="_blank" rel="noopener" onclick="gainXP(5,'+5 XP · Opened a source')">
+            <span class="chapn">${c.n}</span>
+            <span class="chapt">${esc(c.t)}</span>
+            ${c.anchor ? '<span class="chiptag red">Module anchor</span>' : c.link ? '<span class="chiptag gold">Linked</span>' : '<span class="chiptag">PDF ↗</span>'}
+          </a>`).join('')}
+      </div>
+    </div>
 
-    <p class="lead" style="text-align:center">Source: National Council of Educational Research and Training · <a href="${NCERT.portal}" target="_blank" rel="noopener" style="color:var(--red)">ncert.nic.in</a></p>`;
+    <div class="scfact" style="margin:18px 0"><div class="scfl">${svgIcon('share', 'width="13" height="13"')} How your grade connects to the module</div><p>${atlasGrade === 8 ? 'Your Grade 8 study of <strong>colonial India</strong> explains why millions of Indians ended up fighting in the World Wars — the human link between your history and world history.' : atlasGrade === 9 ? 'This is the <strong>home grade</strong> of the module: the Russian Revolution (Ch.2) and the Rise of Nazism (Ch.3) are exactly the story you live through here.' : 'Your Grade 10 chapters on <strong>nationalism</strong> and the <strong>making of a global world</strong> show how these wars reshaped Europe and India’s freedom struggle.'}</p></div>
+
+    <p class="lead" style="text-align:center">Source: NCERT · <a href="${NCERT.portal}" target="_blank" rel="noopener">ncert.nic.in</a></p>`;
 }
 
 /* ============================================================================
@@ -460,8 +522,14 @@ function renderRank() {
    ========================================================================== */
 function boot() {
   $('#xpn').textContent = State.xp;
-  // resume returning students straight to the home hub
-  if (State.name) { $('#nameinp') && ($('#nameinp').value = State.name); }
+  atlasGrade = State.grade || 9;
+  // reflect a returning student's saved choices on the landing screen
+  if (State.name) {
+    const ni = $('#nameinp'); if (ni) ni.value = State.name;
+    $$('.s0av').forEach(a => a.classList.toggle('on', a.textContent === State.avatar));
+    $$('.gchip').forEach(c => c.classList.toggle('on', c.textContent.startsWith(String(State.grade))));
+    $('#avatarMini') && ($('#avatarMini').textContent = State.avatar);
+  }
   Collab.ready.then(m => Portfolio.onCollabReady && Portfolio.onCollabReady(m));
 }
 document.addEventListener('DOMContentLoaded', boot);
