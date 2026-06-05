@@ -14,6 +14,10 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
+  // Health check: open /api/ai in a browser to see if the key is deployed.
+  if (req.method === 'GET') {
+    return res.status(200).json({ ok: true, geminiKeyConfigured: !!process.env.GEMINI_API_KEY, model: MODEL });
+  }
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
   const key = process.env.GEMINI_API_KEY;
